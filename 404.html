@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page not found — Yanmar DVP</title>
+<style>
+body{font-family:sans-serif;background:#060d18;color:#e2eeff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;}
+.box{max-width:420px;padding:40px;}
+.code{font-size:72px;font-weight:700;color:#1e3a5c;margin-bottom:8px;}
+h1{font-size:22px;margin-bottom:12px;}
+p{color:#7a9cc5;font-size:14px;margin-bottom:28px;line-height:1.6;}
+.links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+a{padding:9px 20px;border-radius:8px;text-decoration:none;font-size:14px;}
+.primary{background:#3b82f6;color:white;}
+.secondary{background:#112238;color:#7a9cc5;border:1px solid #1e3a5c;}
+</style>
+<script>
+// Auto-redirect common mistyped paths
+var p = window.location.pathname.toLowerCase();
+if (p.includes('approval')) window.location.replace('./approval.html');
+else if (p.includes('dashboard')) window.location.replace('./dashboard.html');
+else if (p.includes('index') || p === '/' || p.endsWith('/')) window.location.replace('./index.html');
+</script>
+</head>
+<body>
+<div class="box">
+  <div class="code">404</div>
+  <h1>Page not found</h1>
+  <p>The file you're looking for doesn't exist at this path. Make sure all files are uploaded to the root of your GitHub repository — not inside any subfolder.</p>
+  <div class="links">
+    <a href="./index.html" class="primary">New Project</a>
+    <a href="./approval.html" class="secondary">Approvals</a>
+    <a href="./dashboard.html" class="secondary">Dashboard</a>
+  </div>
+</div>
+</body>
+</html>

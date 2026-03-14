@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yanmar DVP Automation — Project Intake</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#060d18;--bg2:#0c1929;--bg3:#112238;--bg4:#1a3350;
+  --border:#1e3a5c;--border2:#2a5080;
+  --text:#e2eeff;--text2:#7a9cc5;--text3:#4a6a8a;
+  --blue:#3b82f6;--blue2:#60a5fa;--blue-bg:#0f2a4a;
+  --teal:#10b981;--teal-bg:#052a1a;
+  --amber:#f59e0b;--amber-bg:#2a1a00;
+  --red:#ef4444;--red-bg:#2a0808;
+  --purple:#8b5cf6;--purple-bg:#1a0f3a;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;}
+nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:32px;height:32px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+.nav-title{font-size:15px;font-weight:600;}
+.nav-subtitle{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .15s;}
+.nav-link:hover{background:var(--bg3);color:var(--text);}
+.nav-link.active{background:var(--blue-bg);color:var(--blue2);}
+.hero{padding:48px 40px 32px;max-width:880px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--blue-bg);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:11px;font-family:var(--mono);color:var(--blue2);margin-bottom:18px;}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-size:32px;font-weight:600;letter-spacing:-0.03em;line-height:1.2;margin-bottom:10px;}
+.hero h1 span{color:var(--blue2);}
+.hero p{font-size:15px;color:var(--text2);line-height:1.7;}
+.steps-wrap{max-width:880px;margin:0 auto 32px;padding:0 40px;}
+.steps{display:flex;align-items:center;}
+.step-item{display:flex;align-items:center;gap:8px;flex:1;}
+.step-num{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:var(--mono);color:var(--text3);flex-shrink:0;transition:all .3s;}
+.step-item.active .step-num{border-color:var(--blue);color:var(--blue2);background:var(--blue-bg);}
+.step-item.done .step-num{border-color:var(--teal);color:var(--teal);background:var(--teal-bg);}
+.step-lbl{font-size:11px;color:var(--text3);}
+.step-item.active .step-lbl{color:var(--text2);}
+.step-item.done .step-lbl{color:var(--teal);}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 8px;transition:background .3s;}
+.step-line.done{background:var(--teal);}
+.wrap{max-width:880px;margin:0 auto;padding:0 40px 80px;}
+.section{display:none;}
+.section.active{display:block;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden;}
+.card-head{padding:14px 22px;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:10px;}
+.card-head h3{font-size:14px;font-weight:600;}
+.card-body{padding:22px;}
+.sec-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.vcard{background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .2s;position:relative;}
+.vcard:hover{border-color:var(--border2);}
+.vcard.sel{border-color:var(--blue);background:var(--blue-bg);}
+.vcard input{position:absolute;opacity:0;width:0;height:0;}
+.vicon{font-size:20px;margin-bottom:5px;display:block;}
+.vname{font-size:12px;font-weight:600;margin-bottom:2px;}
+.vsub{font-size:10px;color:var(--text3);}
+.vtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.vtag{font-size:9px;font-family:var(--mono);padding:2px 5px;border-radius:2px;background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+.vcard.sel .vtag{background:var(--blue-bg);border-color:var(--border2);}
+.vcheck{position:absolute;top:8px;right:8px;width:15px;height:15px;border-radius:50%;background:var(--blue);display:none;align-items:center;justify-content:center;}
+.vcard.sel .vcheck{display:flex;}
+.vcheck::after{content:'';width:4px;height:7px;border:1.5px solid white;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fgrid.one{grid-template-columns:1fr;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg.full{grid-column:1/-1;}
+.flabel{font-size:12px;font-weight:500;color:var(--text2);display:flex;align-items:center;gap:5px;}
+.rdot{width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+.otag{font-size:9px;font-family:var(--mono);color:var(--text3);background:var(--bg3);padding:1px 5px;border-radius:2px;border:1px solid var(--border);}
+.hint{font-size:10px;color:var(--text3);font-family:var(--mono);}
+input[type=text],input[type=number],input[type=email],select,textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;transition:border-color .2s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6a8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;}
+select option{background:var(--bg2);}
+textarea{resize:vertical;min-height:80px;}
+input::placeholder,textarea::placeholder{color:var(--text3);}
+.fg.err input,.fg.err select,.fg.err textarea{border-color:var(--red);}
+.errmsg{font-size:11px;color:var(--red);display:none;}
+.fg.err .errmsg{display:block;}
+.btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;}
+.btn{padding:10px 26px;border-radius:8px;font-size:14px;font-weight:500;font-family:var(--sans);cursor:pointer;transition:all .2s;border:none;}
+.btn-p{background:var(--blue);color:white;}
+.btn-p:hover{background:#2563eb;}
+.btn-s{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.btn-s:hover{background:var(--bg4);}
+.overlay{display:none;position:fixed;inset:0;background:rgba(6,13,24,.9);z-index:200;align-items:center;justify-content:center;}
+.ov-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:44px;text-align:center;max-width:400px;width:90%;}
+.spinner{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ok-icon{width:52px;height:52px;background:var(--teal-bg);border:2px solid var(--teal);border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;}
+.summ-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:12px;}
+.summ-grid span{color:var(--text3);}
+@media(max-width:600px){
+  nav,.hero,.steps-wrap,.wrap{padding-left:16px;padding-right:16px;}
+  .fgrid{grid-template-columns:1fr;}
+  .vgrid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <div><div class="nav-title">Yanmar DVP Automation</div><div class="nav-subtitle">Battery Validation Platform v2</div></div>
+  </div>
+  <div class="nav-links">
+    <a href="./index.html" class="nav-link active">New Project</a>
+    <a href="./approval.html" class="nav-link">Approvals</a>
+    <a href="./dashboard.html" class="nav-link">Dashboard</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge"><span class="pulse"></span>Automation live — connected to n8n</div>
+  <h1>Start a new <span>DVP project</span></h1>
+  <p>Fill in your project details below. Submitting this form triggers the full automation pipeline — gap analysis, standards classification, DVP generation, sample sizing and Gantt.</p>
+</div>
+
+<div class="steps-wrap">
+  <div class="steps" id="stepsBar">
+    <div class="step-item active" id="si1"><div class="step-num">1</div><div class="step-lbl">Vehicle &amp; Application</div></div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step-item" id="si2"><div class="step-num">2</div><div class="step-lbl">Battery Specification</div></div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step-item" id="si3"><div class="step-num">3</div><div class="step-lbl">Project Scope</div></div>
+    <div class="step-line" id="sl3"></div>
+    <div class="step-item" id="si4"><div class="step-num">4</div><div class="step-lbl">Validation Parameters</div></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- SEC 1 -->
+<div class="section active" id="sec1">
+  <div class="card">
+    <div class="card-head"><span style="font-size:18px">🚗</span><h3>Vehicle type &amp; application</h3></div>
+    <div class="card-body">
+      <div class="sec-label">Select vehicle type</div>
+      <div class="vgrid" id="vgrid">
+        <label class="vcard" onclick="selV(this,'Excavator')"><input type="radio" name="v" value="Excavator"><span class="vicon">🏗️</span><div class="vname">Excavator</div><div class="vsub">Off-highway construction</div><div class="vtags"><span class="vtag">ISO 25119</span><span class="vtag">IEC 62619</span><span class="vtag">ISO 6469</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'Wheel Loader')"><input type="radio" name="v" value="Wheel Loader"><span class="vicon">🚜</span><div class="vname">Wheel Loader</div><div class="vsub">Off-highway construction</div><div class="vtags"><span class="vtag">ISO 25119</span><span class="vtag">IEC 62619</span><span class="vtag">ISO 6469</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'Agricultural Tractor')"><input type="radio" name="v" value="Agricultural Tractor"><span class="vicon">🚜</span><div class="vname">Agricultural Tractor</div><div class="vsub">Farming &amp; harvesting</div><div class="vtags"><span class="vtag">ISO 11684</span><span class="vtag">IEC 62619</span><span class="vtag">ISO 25119</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'2-Wheeler')"><input type="radio" name="v" value="2-Wheeler"><span class="vicon">🛵</span><div class="vname">2-Wheeler</div><div class="vsub">E-bike / E-motorcycle</div><div class="vtags"><span class="vtag">IEC 62133</span><span class="vtag">UN 38.3</span><span class="vtag">EN 15194</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'4-Wheeler Passenger EV')"><input type="radio" name="v" value="4-Wheeler Passenger EV"><span class="vicon">🚗</span><div class="vname">4-Wheeler</div><div class="vsub">Passenger EV / Light duty</div><div class="vtags"><span class="vtag">UNECE R100</span><span class="vtag">ISO 26262</span><span class="vtag">GB/T 31484</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'Bus')"><input type="radio" name="v" value="Bus"><span class="vicon">🚌</span><div class="vname">Bus</div><div class="vsub">City / Coach / Transit</div><div class="vtags"><span class="vtag">UNECE R100</span><span class="vtag">ECE R66</span><span class="vtag">IEC 62619</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'Truck')"><input type="radio" name="v" value="Truck"><span class="vicon">🚛</span><div class="vname">Truck</div><div class="vsub">HGV / LCV / Commercial</div><div class="vtags"><span class="vtag">UNECE R100</span><span class="vtag">ISO 26262</span><span class="vtag">IEC 62619</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'Industrial')"><input type="radio" name="v" value="Industrial"><span class="vicon">🏭</span><div class="vname">Industrial</div><div class="vsub">Forklift / Crane / AGV</div><div class="vtags"><span class="vtag">IEC 62619</span><span class="vtag">EN 1175</span><span class="vtag">ISO 3691</span></div><div class="vcheck"></div></label>
+        <label class="vcard" onclick="selV(this,'Other / Custom')"><input type="radio" name="v" value="Other / Custom"><span class="vicon">⚙️</span><div class="vname">Other / Custom</div><div class="vsub">Marine / Rail / Stationary</div><div class="vtags"><span class="vtag">IEC 62619</span><span class="vtag">specify below</span></div><div class="vcheck"></div></label>
+      </div>
+      <div id="verr" style="display:none;color:var(--red);font-size:12px;margin-top:8px">Please select a vehicle type.</div>
+      <div style="margin-top:20px" class="fgrid">
+        <div class="fg" id="fg-md"><div class="flabel"><span class="rdot"></span>Machine model / description</div><input type="text" id="machineDetails" placeholder="e.g. Yanmar SV100 — 10-tonne excavator"><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-op"><div class="flabel"><span class="rdot"></span>Operator proximity</div><select id="operatorProx"><option value="">Select</option><option>Enclosed cab — operator adjacent to battery</option><option>Open cab — operator nearby</option><option>Remote operation — no operator adjacent</option></select><div class="errmsg">Required</div></div>
+        <div class="fg full" id="customGrp" style="display:none"><div class="flabel">Custom vehicle description</div><input type="text" id="customVehicle" placeholder="e.g. Marine vessel, stationary storage"></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row"><div></div><button class="btn btn-p" onclick="next(1)">Continue — Battery Specification →</button></div>
+</div>
+
+<!-- SEC 2 -->
+<div class="section" id="sec2">
+  <div class="card">
+    <div class="card-head"><span style="font-size:18px">🔋</span><h3>Battery specification</h3></div>
+    <div class="card-body">
+      <div class="fgrid">
+        <div class="fg" id="fg-pc"><div class="flabel"><span class="rdot"></span>Pack configuration (S/P)</div><input type="text" id="packConfig" placeholder="e.g. 100S4P"><div class="hint">Format: [series]S[parallel]P</div><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-ch"><div class="flabel"><span class="rdot"></span>Cell chemistry</div><select id="chemistry"><option value="">Select chemistry</option><option>LFP — Lithium Iron Phosphate</option><option>NMC — Nickel Manganese Cobalt</option><option>NCA — Nickel Cobalt Aluminium</option><option>LTO — Lithium Titanate</option><option>NMC-LFP Hybrid</option><option>Other</option></select><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-vo"><div class="flabel"><span class="rdot"></span>Nominal voltage (V)</div><input type="number" id="voltage" placeholder="e.g. 360" min="12" max="1500"><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-en"><div class="flabel"><span class="rdot"></span>Total energy (kWh)</div><input type="number" id="energy" placeholder="e.g. 120" min="0.1" step="0.1"><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-vc"><div class="flabel"><span class="rdot"></span>Voltage class</div><select id="voltageClass"><option value="">Select class</option><option>Class B — above 60V up to 1500V DC</option><option>Class A — up to 60V DC</option></select><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-bm"><div class="flabel"><span class="rdot"></span>BMS strategy</div><input type="text" id="bmsStrategy" placeholder="e.g. Yanmar in-house, active balancing"><div class="errmsg">Required</div></div>
+        <div class="fg full"><div class="flabel">Cell supplier / datasheet ref <span class="otag">optional</span></div><input type="text" id="cellSupplier" placeholder="e.g. CATL 280Ah LFP prismatic — cell_spec.pdf in 01_Inputs"></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row"><button class="btn btn-s" onclick="prev(2)">← Back</button><button class="btn btn-p" onclick="next(2)">Continue — Project Scope →</button></div>
+</div>
+
+<!-- SEC 3 -->
+<div class="section" id="sec3">
+  <div class="card">
+    <div class="card-head"><span style="font-size:18px">📋</span><h3>Project scope &amp; reference documents</h3></div>
+    <div class="card-body">
+      <div class="fgrid">
+        <div class="fg" id="fg-mk"><div class="flabel"><span class="rdot"></span>Target markets</div><input type="text" id="markets" placeholder="e.g. EU, North America, Japan"><div class="hint">Drives applicable regulations</div><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-rd"><div class="flabel"><span class="rdot"></span>Reference DVP document name</div><input type="text" id="refDVP" placeholder="e.g. Yanmar_Baseline_DVP_v2.xlsx"><div class="hint">Must match filename in 01_Inputs/</div><div class="errmsg">Required</div></div>
+        <div class="fg full" id="fg-so"><div class="flabel"><span class="rdot"></span>What is OUT of scope</div><textarea id="scopeOut" placeholder="e.g. Exclude marine standards, BEV automotive UNECE R100, 48V systems, passenger vehicle standards"></textarea><div class="errmsg">Required</div></div>
+        <div class="fg full"><div class="flabel">Duty cycle description <span class="otag">optional</span></div><textarea id="dutyCycle" placeholder="e.g. 8 hrs/day, peak 120kW discharge, 10% regen, operating -20°C to +45°C ambient" style="min-height:60px"></textarea></div>
+        <div class="fg"><div class="flabel">Functional safety target <span class="otag">optional</span></div><select id="funcSafety"><option value="">Not specified</option><option>ASIL B (ISO 26262)</option><option>ASIL C (ISO 26262)</option><option>ASIL D (ISO 26262)</option><option>PLd (ISO 13849) — off-highway</option><option>PLe (ISO 13849) — off-highway</option><option>SIL 1 (IEC 62061)</option><option>SIL 2 (IEC 62061)</option></select></div>
+        <div class="fg"><div class="flabel">IP rating target <span class="otag">optional</span></div><select id="ipRating"><option value="">Not specified</option><option>IP54</option><option>IP65</option><option>IP67</option><option>IP69K — high pressure wash</option></select></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row"><button class="btn btn-s" onclick="prev(3)">← Back</button><button class="btn btn-p" onclick="next(3)">Continue — Validation Parameters →</button></div>
+</div>
+
+<!-- SEC 4 -->
+<div class="section" id="sec4">
+  <div class="card">
+    <div class="card-head"><span style="font-size:18px">📊</span><h3>Validation parameters</h3></div>
+    <div class="card-body">
+      <div class="fgrid">
+        <div class="fg" id="fg-re"><div class="flabel"><span class="rdot"></span>Reliability target (%)</div><input type="number" id="reliability" placeholder="90" min="50" max="99.9" step="0.1"><div class="hint">Typical: 90 (R90)</div><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-co"><div class="flabel"><span class="rdot"></span>Confidence level (%)</div><input type="number" id="confidence" placeholder="90" min="50" max="99.9" step="0.1"><div class="hint">Typical: 90 → R90C90</div><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-po"><div class="flabel"><span class="rdot"></span>Project owner name</div><input type="text" id="projectOwner" placeholder="e.g. Viji Venkatesan"><div class="errmsg">Required</div></div>
+        <div class="fg" id="fg-em"><div class="flabel"><span class="rdot"></span>Project owner email</div><input type="email" id="ownerEmail" placeholder="e.g. viji@yanmar.com"><div class="errmsg">Valid email required</div></div>
+        <div class="fg"><div class="flabel">Project code <span class="otag">optional</span></div><input type="text" id="projectCode" placeholder="e.g. ELU-YNM-002"></div>
+        <div class="fg"><div class="flabel">Target completion date <span class="otag">optional</span></div><input type="text" id="targetDate" placeholder="YYYY-MM-DD"></div>
+        <div class="fg full"><div class="flabel">Additional notes <span class="otag">optional</span></div><textarea id="notes" placeholder="Special test conditions, regulatory deadlines, customer requirements..." style="min-height:70px"></textarea></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="summCard" style="display:none">
+    <div class="card-head"><span style="color:var(--teal)">✓</span><h3>Review before submitting</h3></div>
+    <div class="card-body"><div class="summ-grid" id="summBody"></div></div>
+  </div>
+  <div class="btn-row"><button class="btn btn-s" onclick="prev(4)">← Back</button><button class="btn btn-p" id="submitBtn" onclick="doSubmit()">Submit — Start DVP Automation ⚡</button></div>
+</div>
+
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="ov">
+  <div class="ov-card">
+    <div id="ov-loading"><div class="spinner"></div><div style="font-size:15px;font-weight:600;margin-bottom:8px">Triggering automation...</div><div style="font-size:13px;color:var(--text2)">Sending to n8n workflow engine</div></div>
+    <div id="ov-ok" style="display:none">
+      <div class="ok-icon"><svg width="22" height="22" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div style="font-size:17px;font-weight:600;color:var(--teal);margin-bottom:8px">Automation started!</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px">WF-1 is running. You will receive a confirmation email with gap analysis results shortly.</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:18px" id="ov-ref"></div>
+      <a href="./dashboard.html" style="display:inline-block;padding:10px 24px;background:var(--blue);color:white;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">View Dashboard →</a>
+    </div>
+    <div id="ov-err" style="display:none">
+      <div style="font-size:15px;font-weight:600;color:var(--red);margin-bottom:8px">Submission failed</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:18px" id="ov-errmsg">Check n8n webhook URL in config.js</div>
+      <button class="btn btn-s" onclick="document.getElementById('ov').style.display='none'">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+var selVehicle='',curSec=1;
+function selV(el,v){document.querySelectorAll('.vcard').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');selVehicle=v;document.getElementById('verr').style.display='none';document.getElementById('customGrp').style.display=v==='Other / Custom'?'flex':'none';}
+function showSec(n){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec'+n).classList.add('active');for(var i=1;i<=4;i++){var si=document.getElementById('si'+i);si.classList.remove('active','done');if(i<n)si.classList.add('done');else if(i===n)si.classList.add('active');if(i<4)document.getElementById('sl'+i).classList.toggle('done',i<n);}curSec=n;window.scrollTo({top:0,behavior:'smooth'});}
+function val(id){var e=document.getElementById(id);return e?e.value.trim():'';}
+function chk(ids,sec){var ok=true;ids.forEach(function(id){var e=document.getElementById(id);var g=document.getElementById('fg-'+id);if(e&&!e.value.trim()){if(g)g.classList.add('err');ok=false;}else if(g)g.classList.remove('err');});return ok;}
+function validateSec(n){
+  if(n===1){
+    var ok=true;
+    if(!selVehicle){document.getElementById('verr').style.display='block';ok=false;}
+    return chk(['md','op'],1)&&ok;
+  }
+  if(n===2)return chk(['pc','ch','vo','en','vc','bm'],2);
+  if(n===3)return chk(['mk','rd','so'],3);
+  if(n===4){
+    var ok2=chk(['re','co','po'],4);
+    var ee=document.getElementById('ownerEmail'),gg=document.getElementById('fg-em');
+    if(!ee||!ee.value.trim()||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ee.value)){if(gg)gg.classList.add('err');ok2=false;}else if(gg)gg.classList.remove('err');
+    return ok2;
+  }
+  return true;
+}
+function next(n){if(!validateSec(n))return;if(n===3)buildSumm();showSec(n+1);}
+function prev(n){showSec(n-1);}
+function buildSumm(){
+  var s=document.getElementById('summCard');s.style.display='block';
+  document.getElementById('summBody').innerHTML='<div><span>Vehicle:</span> <strong>'+selVehicle+'</strong></div><div><span>Machine:</span> '+val('machineDetails')+'</div><div><span>Chemistry:</span> '+val('chemistry')+'</div><div><span>Pack:</span> '+val('packConfig')+' | '+val('voltage')+'V | '+val('energy')+'kWh</div><div><span>Markets:</span> '+val('markets')+'</div><div><span>Reliability:</span> R'+val('reliability')+'C'+val('confidence')+'</div><div><span>Owner:</span> '+val('projectOwner')+'</div><div><span>Ref DVP:</span> '+val('refDVP')+'</div>';
+}
+async function doSubmit(){
+  if(!validateSec(4))return;
+  var pid='DVP-'+Date.now();
+  var payload={project_id:pid,submitted_at:new Date().toISOString(),vehicle_type:selVehicle,machine_details:val('machineDetails'),operator_proximity:val('operatorProx'),custom_vehicle:val('customVehicle'),pack_config:val('packConfig'),chemistry:val('chemistry'),nominal_voltage_v:val('voltage'),total_energy_kwh:val('energy'),voltage_class:val('voltageClass'),bms_strategy:val('bmsStrategy'),cell_supplier:val('cellSupplier'),target_markets:val('markets'),reference_dvp:val('refDVP'),scope_out:val('scopeOut'),duty_cycle:val('dutyCycle'),functional_safety:val('funcSafety'),ip_rating:val('ipRating'),reliability_target_pct:val('reliability'),confidence_level_pct:val('confidence'),project_owner:val('projectOwner'),owner_email:val('ownerEmail'),project_code:val('projectCode'),target_date:val('targetDate'),notes:val('notes')};
+  var ov=document.getElementById('ov');
+  ov.style.display='flex';
+  document.getElementById('ov-loading').style.display='block';
+  document.getElementById('ov-ok').style.display='none';
+  document.getElementById('ov-err').style.display='none';
+  try{
+    var res=await fetch(window.DVP_CONFIG.n8nWebhookUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    document.getElementById('ov-loading').style.display='none';
+    document.getElementById('ov-ok').style.display='block';
+    document.getElementById('ov-ref').textContent='Project ID: '+pid;
+    localStorage.setItem('lastProject',JSON.stringify(payload));
+  }catch(e){
+    document.getElementById('ov-loading').style.display='none';
+    document.getElementById('ov-err').style.display='block';
+    document.getElementById('ov-errmsg').textContent=e.message+' — verify n8n webhook URL in config.js';
+  }
+}
+</script>
+</body>
+</html>
