@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yanmar DVP — Approval Centre</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{--bg:#060d18;--bg2:#0c1929;--bg3:#112238;--bg4:#1a3350;--border:#1e3a5c;--border2:#2a5080;--text:#e2eeff;--text2:#7a9cc5;--text3:#4a6a8a;--blue:#3b82f6;--blue2:#60a5fa;--blue-bg:#0f2a4a;--teal:#10b981;--teal-bg:#052a1a;--amber:#f59e0b;--amber-bg:#2a1a00;--red:#ef4444;--red-bg:#2a0808;--mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);}
+nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:32px;height:32px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+.nav-title{font-size:15px;font-weight:600;}
+.nav-subtitle{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .15s;}
+.nav-link:hover{background:var(--bg3);color:var(--text);}
+.nav-link.active{background:var(--blue-bg);color:var(--blue2);}
+.wrap{max-width:760px;margin:0 auto;padding:48px 40px 80px;}
+h1{font-size:28px;font-weight:600;letter-spacing:-0.03em;margin-bottom:8px;}
+.sub{font-size:14px;color:var(--text2);margin-bottom:36px;line-height:1.6;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:24px;overflow:hidden;}
+.card-head{padding:14px 22px;border-bottom:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:10px;}
+.card-head h3{font-size:14px;font-weight:600;}
+.gate-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:600;margin-left:auto;}
+.gate-hard{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+.card-body{padding:22px;}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.flabel{font-size:12px;font-weight:500;color:var(--text2);display:flex;align-items:center;gap:5px;}
+.rdot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
+select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;transition:border-color .2s;}
+select:focus,textarea:focus{border-color:var(--blue);}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6a8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+select option{background:var(--bg2);}
+textarea{resize:vertical;min-height:90px;}
+.hint{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.btn-row{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
+.btn{padding:10px 26px;border-radius:8px;font-size:14px;font-weight:500;font-family:var(--sans);cursor:pointer;transition:all .2s;border:none;}
+.btn-approve{background:var(--teal);color:white;}
+.btn-approve:hover{background:#059669;}
+.btn-reject{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+.btn-reject:hover{background:#3d0f0f;}
+.info-box{background:var(--blue-bg);border:1px solid var(--border2);border-radius:8px;padding:16px 18px;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px;}
+.step-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.step-item:last-child{border-bottom:none;}
+.step-n{width:24px;height:24px;border-radius:50%;background:var(--blue-bg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--mono);color:var(--blue2);flex-shrink:0;margin-top:2px;}
+.step-content .step-title{font-size:13px;font-weight:500;margin-bottom:3px;}
+.step-content .step-desc{font-size:12px;color:var(--text2);}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--teal-bg);border:1px solid var(--teal);border-radius:8px;padding:14px 20px;font-size:13px;color:var(--teal);display:none;z-index:300;}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <div><div class="nav-title">Yanmar DVP Automation</div><div class="nav-subtitle">Battery Validation Platform v2</div></div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">New Project</a>
+    <a href="approval.html" class="nav-link active">Approvals</a>
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1>Approval centre</h1>
+  <p class="sub">Review and approve the standards classification list before RAG ingestion begins. This is the only hard gate in the automation — nothing proceeds until you submit here.</p>
+
+  <div class="info-box">
+    Before approving: open <strong>02_Standards/01_Classified/</strong> in Google Drive and review the filtered off-highway standards list. The automation has classified all 150+ PDFs and moved off-highway relevant files there.
+  </div>
+
+  <!-- STEPS -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-head"><h3>Review checklist</h3></div>
+    <div class="card-body">
+      <div class="step-item"><div class="step-n">1</div><div class="step-content"><div class="step-title">Open Google Drive → 02_Standards/01_Classified/</div><div class="step-desc">Count the files — should be a subset of your 150+ total standards</div></div></div>
+      <div class="step-item"><div class="step-n">2</div><div class="step-content"><div class="step-title">Verify standard numbers and version years are correct</div><div class="step-desc">Each filename should include the standard number and year. Check against Standards_index.xlsx in 02_Standards/</div></div></div>
+      <div class="step-item"><div class="step-n">3</div><div class="step-content"><div class="step-title">Check nothing automotive/marine/general was incorrectly included</div><div class="step-desc">UNECE R100 (automotive), CISPR 25 (automotive EMC) should NOT be in the list for off-highway projects</div></div></div>
+      <div class="step-item"><div class="step-n">4</div><div class="step-content"><div class="step-title">Submit your decision below</div><div class="step-desc">APPROVE to start RAG ingestion immediately · REJECT to request corrections</div></div></div>
+    </div>
+  </div>
+
+  <!-- APPROVAL FORM -->
+  <div class="card">
+    <div class="card-head">
+      <span style="font-size:18px">📋</span>
+      <h3>Standards list approval</h3>
+      <div class="gate-badge gate-hard">HARD GATE</div>
+    </div>
+    <div class="card-body">
+      <div class="fg">
+        <div class="flabel"><span class="rdot"></span>Decision</div>
+        <select id="decision">
+          <option value="">Select your decision</option>
+          <option value="APPROVE">APPROVE — proceed to RAG ingestion</option>
+          <option value="REJECT">REJECT — corrections needed</option>
+        </select>
+      </div>
+      <div class="fg">
+        <div class="flabel">Standards to ADD (filenames, one per line)</div>
+        <textarea id="toAdd" placeholder="Leave blank if none&#10;e.g. ISO_25119-1_2018.pdf"></textarea>
+        <div class="hint">Only needed if classifier missed a relevant off-highway standard</div>
+      </div>
+      <div class="fg">
+        <div class="flabel">Standards to REMOVE (filenames, one per line)</div>
+        <textarea id="toRemove" placeholder="Leave blank if none&#10;e.g. CISPR_25_2021.pdf"></textarea>
+        <div class="hint">Only needed if classifier incorrectly included a non-applicable standard</div>
+      </div>
+      <div class="fg">
+        <div class="flabel">Notes for automation engineer</div>
+        <textarea id="approvalNotes" placeholder="Any additional instructions or observations (optional)" style="min-height:60px"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-reject" onclick="submitApproval('REJECT')">Submit Rejection</button>
+        <button class="btn btn-approve" onclick="submitApproval('APPROVE')">✓ Approve — Start RAG</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+async function submitApproval(force) {
+  var dec = force || document.getElementById('decision').value;
+  if (!dec) { alert('Please select a decision.'); return; }
+  var payload = {
+    approval_type: 'standards_list',
+    decision: dec,
+    standards_to_add: document.getElementById('toAdd').value.trim(),
+    standards_to_remove: document.getElementById('toRemove').value.trim(),
+    notes: document.getElementById('approvalNotes').value.trim(),
+    submitted_at: new Date().toISOString(),
+    submitted_by: 'Validation Head'
+  };
+  try {
+    await fetch(window.DVP_CONFIG.approvalWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    var t = document.getElementById('toast');
+    t.textContent = dec === 'APPROVE' ? '✓ Approved — RAG ingestion starting now' : 'Rejection submitted — corrections noted';
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 4000);
+  } catch(e) {
+    alert('Could not reach n8n: ' + e.message + '. Check approvalWebhookUrl in config.js');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yanmar DVP — Live Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{--bg:#060d18;--bg2:#0c1929;--bg3:#112238;--bg4:#1a3350;--border:#1e3a5c;--border2:#2a5080;--text:#e2eeff;--text2:#7a9cc5;--text3:#4a6a8a;--blue:#3b82f6;--blue2:#60a5fa;--blue-bg:#0f2a4a;--teal:#10b981;--teal-bg:#052a1a;--amber:#f59e0b;--amber-bg:#2a1a00;--red:#ef4444;--red-bg:#2a0808;--purple:#8b5cf6;--mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);}
+nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:32px;height:32px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;}
+.nav-title{font-size:15px;font-weight:600;}
+.nav-subtitle{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;}
+.nav-link:hover{background:var(--bg3);color:var(--text);}
+.nav-link.active{background:var(--blue-bg);color:var(--blue2);}
+.dash-header{padding:28px 40px 20px;display:flex;align-items:center;justify-content:space-between;}
+.dash-title h1{font-size:24px;font-weight:600;letter-spacing:-0.02em;margin-bottom:4px;}
+.dash-title p{font-size:13px;color:var(--text2);}
+.dash-controls{display:flex;align-items:center;gap:10px;}
+.refresh-btn{padding:7px 14px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.refresh-btn:hover{background:var(--bg4);color:var(--text);}
+.last-refresh{font-size:11px;font-family:var(--mono);color:var(--text3);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;display:inline-block;margin-right:5px;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.main{padding:0 40px 60px;}
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px;}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.kpi-val{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:4px;}
+.kpi-label{font-size:11px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+/* FILTERS */
+.filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{padding:5px 12px;border-radius:20px;font-size:12px;font-family:var(--mono);border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .15s;}
+.filter-btn:hover{border-color:var(--border2);}
+.filter-btn.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue2);}
+/* STATUS GRID */
+.section-title{font-size:12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:32px;}
+.test-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;transition:border-color .15s;cursor:pointer;}
+.test-card:hover{border-color:var(--border2);}
+.test-card.pass{border-left:3px solid var(--teal);}
+.test-card.fail{border-left:3px solid var(--red);}
+.test-card.running{border-left:3px solid var(--amber);}
+.test-card.pending{border-left:3px solid var(--border2);}
+.test-card.conditional{border-left:3px solid var(--purple);}
+.tc-id{font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:4px;}
+.tc-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;line-height:1.4;}
+.tc-meta{display:flex;align-items:center;justify-content:space-between;}
+.tc-level{font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:2px;background:var(--bg3);color:var(--text3);}
+.status-badge{font-size:10px;font-family:var(--mono);font-weight:600;padding:2px 7px;border-radius:3px;}
+.sb-pass{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal);}
+.sb-fail{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+.sb-running{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
+.sb-pending{background:var(--bg3);color:var(--text3);border:1px solid var(--border);}
+.sb-conditional{background:var(--purple-bg,#1a0f3a);color:var(--purple);border:1px solid var(--purple);}
+.tc-eng{font-size:10px;color:var(--text3);margin-top:5px;}
+/* GANTT */
+.gantt-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:32px;}
+.gantt-head{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg3);font-size:13px;font-weight:600;}
+.gantt-body{padding:16px 20px;overflow-x:auto;}
+.gantt-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;min-width:700px;}
+.gantt-label{width:160px;font-size:11px;color:var(--text2);flex-shrink:0;font-family:var(--mono);}
+.gantt-track{flex:1;height:20px;background:var(--bg3);border-radius:3px;position:relative;overflow:hidden;}
+.gantt-bar{position:absolute;top:2px;bottom:2px;border-radius:2px;display:flex;align-items:center;padding:0 6px;font-size:9px;font-family:var(--mono);color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gantt-weeks{display:flex;margin-bottom:8px;padding-left:172px;min-width:700px;}
+.gantt-wk{flex:1;font-size:9px;font-family:var(--mono);color:var(--text3);text-align:center;border-left:1px solid var(--border);}
+/* RESULTS TABLE */
+.results-table{width:100%;border-collapse:collapse;font-size:12px;}
+.results-table th{text-align:left;padding:8px 12px;font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg3);}
+.results-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+.results-table tr:hover td{background:var(--bg3);}
+.results-table tr:last-child td{border-bottom:none;}
+/* LOADING */
+.loading{text-align:center;padding:60px;color:var(--text3);font-family:var(--mono);font-size:13px;}
+.loading-spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-state{text-align:center;padding:48px;color:var(--text3);font-size:13px;}
+.empty-state .big{font-size:32px;margin-bottom:12px;}
+/* DETAIL MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(6,13,24,.85);z-index:200;align-items:center;justify-content:center;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:16px;}
+.modal-row{display:flex;gap:16px;margin-bottom:10px;font-size:13px;}
+.modal-key{color:var(--text3);min-width:140px;flex-shrink:0;}
+.modal-val{color:var(--text2);}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2);cursor:pointer;font-size:12px;}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr;}.main,.dash-header{padding-left:16px;padding-right:16px;}.gantt-body{padding:10px;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <div><div class="nav-title">Yanmar DVP Automation</div><div class="nav-subtitle">Battery Validation Platform v2</div></div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">New Project</a>
+    <a href="approval.html" class="nav-link">Approvals</a>
+    <a href="dashboard.html" class="nav-link active">Dashboard</a>
+  </div>
+</nav>
+
+<div class="dash-header">
+  <div class="dash-title">
+    <h1>Test status dashboard</h1>
+    <p><span class="live-dot"></span>Live data from Google Sheets — auto-refreshes every 60 seconds</p>
+  </div>
+  <div class="dash-controls">
+    <span class="last-refresh" id="lastRefresh">Loading...</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    <a href="index.html" style="padding:7px 14px;border-radius:6px;background:var(--blue);color:white;text-decoration:none;font-size:12px;font-weight:500">+ New Project</a>
+  </div>
+</div>
+
+<div class="main">
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi"><div class="kpi-val" id="k-total">—</div><div class="kpi-label">Total tests</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--teal)" id="k-pass">—</div><div class="kpi-label">Passed</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--red)" id="k-fail">—</div><div class="kpi-label">Failed</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--amber)" id="k-running">—</div><div class="kpi-label">In progress</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--blue2)" id="k-pct">—</div><div class="kpi-label">Pass rate</div><div class="kpi-sub" id="k-pending">— pending</div></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('cell',this)">Cell level</button>
+    <button class="filter-btn" onclick="setFilter('module',this)">Module level</button>
+    <button class="filter-btn" onclick="setFilter('pack',this)">Pack level</button>
+    <button class="filter-btn" onclick="setFilter('system',this)">System level</button>
+    <button class="filter-btn" onclick="setFilter('fail',this)">Failures only</button>
+    <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+  </div>
+
+  <!-- STATUS GRID -->
+  <div class="section-title">Test items status</div>
+  <div id="statusGrid" class="status-grid">
+    <div class="loading"><div class="loading-spinner"></div>Loading test data from Google Sheets...</div>
+  </div>
+
+  <!-- GANTT -->
+  <div class="section-title">Gantt chart — planned timeline</div>
+  <div class="gantt-wrap">
+    <div class="gantt-head">Test execution timeline</div>
+    <div class="gantt-body" id="ganttBody">
+      <div class="loading"><div class="loading-spinner"></div>Loading Gantt data...</div>
+    </div>
+  </div>
+
+  <!-- RESULTS TABLE -->
+  <div class="section-title">Latest results</div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <table class="results-table" id="resultsTable">
+      <thead><tr><th>Test ID</th><th>Category</th><th>Level</th><th>Result</th><th>Standard</th><th>Engineer</th><th>Date</th><th>Confidence</th></tr></thead>
+      <tbody id="resultsBody"><tr><td colspan="8"><div class="loading"><div class="loading-spinner"></div></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="document.getElementById('modalBg').style.display='none'">✕ Close</button>
+    <h3 id="modalTitle">Test Detail</h3>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+var allItems=[], allResults=[], activeFilter='all';
+
+function statusClass(s){
+  s=(s||'').toLowerCase();
+  if(s==='pass')return 'pass';
+  if(s==='fail')return 'fail';
+  if(s==='running'||s==='in progress'||s==='in_progress')return 'running';
+  if(s==='conditional')return 'conditional';
+  return 'pending';
+}
+function statusBadge(s){
+  var c=statusClass(s);
+  var labels={pass:'PASS',fail:'FAIL',running:'RUNNING',conditional:'CONDITIONAL',pending:'PENDING'};
+  return '<span class="status-badge sb-'+c+'">'+(labels[c]||'PENDING')+'</span>';
+}
+function barColor(s){
+  var c=statusClass(s);
+  if(c==='pass')return '#10b981';
+  if(c==='fail')return '#ef4444';
+  if(c==='running')return '#f59e0b';
+  if(c==='conditional')return '#8b5cf6';
+  return '#2a5080';
+}
+
+async function loadData(){
+  document.getElementById('lastRefresh').textContent='Refreshing...';
+  var cfg=window.DVP_CONFIG;
+  var base='https://sheets.googleapis.com/v4/spreadsheets/'+cfg.googleSheetId+'/values/';
+  var key='?key='+cfg.googleApiKey;
+  try{
+    var [itemsResp, resultsResp] = await Promise.all([
+      fetch(base+encodeURIComponent(cfg.sheetNames.dvpItems)+key).then(r=>r.json()),
+      fetch(base+encodeURIComponent(cfg.sheetNames.results)+key).then(r=>r.json())
+    ]);
+    allItems = parseSheet(itemsResp);
+    allResults = parseSheet(resultsResp);
+    renderAll();
+    document.getElementById('lastRefresh').textContent='Updated '+new Date().toLocaleTimeString();
+  }catch(e){
+    document.getElementById('lastRefresh').textContent='Error: '+e.message;
+    renderDemo();
+  }
+}
+
+function parseSheet(resp){
+  if(!resp.values||resp.values.length<2)return [];
+  var headers=resp.values[0];
+  return resp.values.slice(1).map(function(row){
+    var obj={};
+    headers.forEach(function(h,i){obj[h]=row[i]||'';});
+    return obj;
+  });
+}
+
+function renderAll(){
+  var items=allItems;
+  if(activeFilter==='fail')items=items.filter(i=>statusClass(i.result||i.status)===('fail'));
+  else if(activeFilter==='pending')items=items.filter(i=>statusClass(i.result||i.status)==='pending');
+  else if(activeFilter!=='all')items=items.filter(i=>(i.level||'').toLowerCase()===activeFilter);
+
+  // KPIs
+  var total=allItems.length,pass=0,fail=0,running=0,pending=0;
+  allItems.forEach(function(i){
+    var s=statusClass(i.result||i.status||'');
+    if(s==='pass')pass++;else if(s==='fail')fail++;else if(s==='running')running++;else pending++;
+  });
+  var done=pass+fail;
+  document.getElementById('k-total').textContent=total||'—';
+  document.getElementById('k-pass').textContent=pass||'—';
+  document.getElementById('k-fail').textContent=fail||'—';
+  document.getElementById('k-running').textContent=running||'—';
+  document.getElementById('k-pct').textContent=done>0?Math.round(pass/done*100)+'%':'—';
+  document.getElementById('k-pending').textContent=pending+' pending';
+
+  // Status grid
+  var g=document.getElementById('statusGrid');
+  if(!items.length){g.innerHTML='<div class="empty-state"><div class="big">📋</div>No test items loaded yet.<br>Add data to your Google Sheet to see results here.</div>';return;}
+  g.innerHTML=items.map(function(item){
+    var s=statusClass(item.result||item.status||'');
+    return '<div class="test-card '+s+'" onclick="showDetail(\''+encodeURIComponent(JSON.stringify(item))+'\')"><div class="tc-id">'+(item.test_id||'—')+'</div><div class="tc-name">'+(item.test_name||'—')+'</div><div class="tc-meta"><span class="tc-level">'+(item.level||'—')+'</span>'+statusBadge(item.result||item.status||'')+'</div><div class="tc-eng">'+(item.engineer?'👤 '+item.engineer:'Unassigned')+'</div></div>';
+  }).join('');
+
+  // Gantt
+  renderGantt(items);
+
+  // Results table
+  var tbody=document.getElementById('resultsBody');
+  var resultItems=allResults.length?allResults:allItems.filter(i=>i.result&&i.result.toLowerCase()!=='pending');
+  if(!resultItems.length){tbody.innerHTML='<tr><td colspan="8" style="padding:32px;text-align:center;color:var(--text3);font-size:13px">No results logged yet</td></tr>';return;}
+  tbody.innerHTML=resultItems.slice(0,50).map(function(r){
+    return '<tr><td style="font-family:var(--mono);font-size:11px;color:var(--text2)">'+(r.test_id||r.test_name||'—')+'</td><td>'+(r.category||'—')+'</td><td style="font-family:var(--mono);font-size:11px">'+(r.level||'—')+'</td><td>'+statusBadge(r.result||r.pass_fail||'')+'</td><td style="font-size:11px;font-family:var(--mono);color:var(--text2)">'+(r.standard_cited||r.applicable_standard||'—')+'</td><td style="font-size:12px">'+(r.engineer||'—')+'</td><td style="font-size:11px;font-family:var(--mono)">'+(r.test_date||'—')+'</td><td style="font-size:11px">'+statusBadge(r.confidence_level||'')+'</td></tr>';
+  }).join('');
+}
+
+function renderGantt(items){
+  var body=document.getElementById('ganttBody');
+  var maxWk=0;
+  items.forEach(i=>{if(parseInt(i.end_week)>maxWk)maxWk=parseInt(i.end_week);});
+  maxWk=Math.max(maxWk,20);
+  var wkHtml='<div class="gantt-weeks">';
+  for(var w=1;w<=maxWk;w++)wkHtml+='<div class="gantt-wk">W'+w+'</div>';
+  wkHtml+='</div>';
+  var rowsHtml=items.filter(i=>i.start_week&&i.end_week).slice(0,20).map(function(i){
+    var sw=parseInt(i.start_week)||1,ew=parseInt(i.end_week)||sw+1;
+    var left=((sw-1)/maxWk*100).toFixed(1)+'%';
+    var width=((ew-sw+1)/maxWk*100).toFixed(1)+'%';
+    var s=statusClass(i.result||i.status||'');
+    return '<div class="gantt-row"><div class="gantt-label">'+(i.test_id||'').substring(0,18)+'</div><div class="gantt-track"><div class="gantt-bar" style="left:'+left+';width:'+width+';background:'+barColor(s)+'">'+(i.test_name||'').substring(0,16)+'</div></div></div>';
+  }).join('');
+  body.innerHTML=wkHtml+(rowsHtml||'<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">No Gantt data yet — add start_week and end_week columns to DVP_Items sheet</div>');
+}
+
+function renderDemo(){
+  var demo=[
+    {test_id:'ELEC-CELL-001',test_name:'Cell capacity at 1C',level:'cell',category:'Electrical',result:'PASS',engineer:'Ravi K',test_date:'2026-05-10',start_week:'2',end_week:'3'},
+    {test_id:'ELEC-CELL-002',test_name:'Cell DCIR measurement',level:'cell',category:'Electrical',result:'PASS',engineer:'Ravi K',test_date:'2026-05-12',start_week:'3',end_week:'4'},
+    {test_id:'THERMAL-PACK-001',test_name:'Pack thermal runaway',level:'pack',category:'Thermal',result:'FAIL',engineer:'Priya S',test_date:'2026-05-15',start_week:'4',end_week:'6'},
+    {test_id:'MECH-PACK-001',test_name:'Pack vibration test',level:'pack',category:'Mechanical',result:'running',engineer:'Arjun M',start_week:'5',end_week:'8'},
+    {test_id:'SAFETY-SYS-001',test_name:'HV isolation check',level:'system',category:'Safety',result:'pending',start_week:'7',end_week:'9'},
+    {test_id:'ENV-PACK-001',test_name:'IP67 ingress test',level:'pack',category:'Environmental',result:'pending',start_week:'8',end_week:'10'},
+    {test_id:'EMC-PACK-001',test_name:'Pack radiated emissions',level:'pack',category:'EMC',result:'pending',start_week:'9',end_week:'11'},
+    {test_id:'LIFE-CELL-001',test_name:'Cell cycle aging',level:'cell',category:'Lifetime',result:'running',engineer:'Ravi K',start_week:'3',end_week:'14'},
+  ];
+  allItems=demo; allResults=demo.filter(i=>i.result==='PASS'||i.result==='FAIL');
+  renderAll();
+  document.getElementById('lastRefresh').textContent='Demo data — connect Google Sheets to see live data';
+}
+
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function showDetail(enc){
+  var item=JSON.parse(decodeURIComponent(enc));
+  document.getElementById('modalTitle').textContent=(item.test_id||'Test')+' — '+( item.test_name||'');
+  var keys=['level','category','applicable_standard','standard_version_year','clause_reference','acceptance_criteria','engineer','test_date','result','confidence_level','actual_result_summary','deviation_notes','recommendation','result_file_link'];
+  document.getElementById('modalBody').innerHTML=keys.filter(k=>item[k]).map(function(k){
+    return '<div class="modal-row"><div class="modal-key">'+k.replace(/_/g,' ')+'</div><div class="modal-val">'+item[k]+'</div></div>';
+  }).join('');
+  document.getElementById('modalBg').style.display='flex';
+}
+function closeModal(e){if(e.target.id==='modalBg')document.getElementById('modalBg').style.display='none';}
+
+loadData();
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
